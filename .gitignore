@@ -1,0 +1,8 @@
+dist-newstyle/
+dist/
+.ghc.environment.*
+cabal.project.local*
+*.hi
+*.o
+.DS_Store
+SUBMISSION.md

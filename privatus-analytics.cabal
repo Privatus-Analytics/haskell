@@ -1,0 +1,98 @@
+cabal-version:      3.0
+name:               privatus-analytics
+version:            1.0.0
+synopsis:           Cookieless Privatus Analytics script tag for Haskell web apps
+description:
+  Prints the cookieless Privatus Analytics tracking script tag and the
+  data attributes for custom events and click maps. It comes with a WAI
+  middleware that adds the tag to the head of HTML pages, and helpers for
+  lucid and blaze-html.
+  .
+  The package only renders HTML. It never sends HTTP requests, never sends
+  events from the server, sets no cookies and reads no IP addresses.
+  .
+  See "PrivatusAnalytics" to get started.
+
+homepage:           https://privatusanalytics.com
+bug-reports:        https://github.com/Privatus-Analytics/haskell/issues
+license:            MIT
+license-file:       LICENSE
+author:             Two Phase LLC
+maintainer:         james@privatusanalytics.com
+copyright:          2026 Two Phase LLC
+category:           Web
+build-type:         Simple
+tested-with:        GHC ==9.6.7 || ==9.8.4 || ==9.10.2 || ==9.12.2
+extra-doc-files:
+  CHANGELOG.md
+  README.md
+
+source-repository head
+  type:     git
+  location: https://github.com/Privatus-Analytics/haskell.git
+
+common warnings
+  default-extensions: DerivingStrategies
+  ghc-options:
+    -Wall -Wcompat -Widentities -Wincomplete-record-updates
+    -Wincomplete-uni-patterns -Wmissing-deriving-strategies
+    -Wredundant-constraints
+
+library
+  import:           warnings
+  hs-source-dirs:   src
+  default-language: GHC2021
+  exposed-modules:
+    PrivatusAnalytics
+    PrivatusAnalytics.Attributes
+    PrivatusAnalytics.Blaze
+    PrivatusAnalytics.Config
+    PrivatusAnalytics.Lucid
+    PrivatusAnalytics.PageProps
+    PrivatusAnalytics.Prop
+    PrivatusAnalytics.Tag
+    PrivatusAnalytics.Wai
+
+  other-modules:    PrivatusAnalytics.Html
+  build-depends:
+    , aeson             >=2.1    && <2.3
+    , base              >=4.18   && <5
+    , blaze-html        >=0.9.1  && <0.10
+    , blaze-markup      >=0.8.2  && <0.9
+    , bytestring        >=0.11.4 && <0.13
+    , case-insensitive  >=1.2.1  && <1.3
+    , http-types        >=0.12.3 && <0.13
+    , lucid             >=2.9.12 && <2.12
+    , scientific        >=0.3.7  && <0.4
+    , text              >=2.0.2  && <2.2
+    , vector            >=0.12.3 && <0.14
+    , wai               >=3.2.3  && <3.3
+
+test-suite spec
+  import:             warnings
+  type:               exitcode-stdio-1.0
+  hs-source-dirs:     test
+  main-is:            Main.hs
+  default-language:   GHC2021
+  other-modules:
+    AttributesSpec
+    ConfigSpec
+    HelpersSpec
+    PagePropsSpec
+    TagSpec
+    WaiSpec
+
+  build-tool-depends: hspec-discover:hspec-discover >=2.10 && <2.12
+  ghc-options:        -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+    , aeson
+    , base
+    , blaze-html
+    , bytestring
+    , http-types
+    , hspec               >=2.10 && <2.12
+    , lucid
+    , privatus-analytics
+    , text
+    , wai
+    , wai-extra           >=3.1  && <3.2
