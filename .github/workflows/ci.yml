@@ -43,9 +43,17 @@ jobs:
         with:
           path: '["src/", "test/"]'
           fail-on: suggestion
-      - uses: haskell-actions/run-ormolu@v16
-        with:
-          version: "0.7.4.0"
+      # The same ormolu run-docker.sh uses, from its release page. The
+      # run-ormolu action failed to download its binary.
+      - name: ormolu 0.7.4.0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download 0.7.4.0 -R tweag/ormolu -p ormolu-Linux.zip
+          unzip -q ormolu-Linux.zip -d "$RUNNER_TEMP/ormolu"
+          chmod +x "$RUNNER_TEMP/ormolu/ormolu"
+          "$RUNNER_TEMP/ormolu/ormolu" --version
+          "$RUNNER_TEMP/ormolu/ormolu" --mode check $(find src test -name "*.hs")
 
   package:
     runs-on: ubuntu-24.04
