@@ -25,8 +25,9 @@ import PrivatusAnalytics.Config (Config)
 import PrivatusAnalytics.Prop (Prop)
 import PrivatusAnalytics.Tag (TagOptions, analyticsTag)
 
--- | The script tag. Prints nothing without a site id, or outside the enabled
--- environments.
+-- | The script tag. Without a site id, or outside the enabled environments,
+-- it prints only the queue stub (when 'PrivatusAnalytics.Config.configQueueStub'
+-- is on) or nothing.
 analyticsTag_ :: (Monad m) => Config -> TagOptions -> HtmlT m ()
 analyticsTag_ config options = toHtmlRaw (analyticsTag config options)
 

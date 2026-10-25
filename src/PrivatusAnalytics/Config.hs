@@ -91,7 +91,8 @@ data Config = Config
     -- It runs only when the tag prints.
     configRequestProps :: Maybe (Wai.Request -> IO [Prop]),
     -- | 'True' prints the tracker's queue stub first, so @privatus.track@
-    -- calls made before the tracker loads are kept.
+    -- calls made before the tracker loads are kept. It also prints when the
+    -- tag is off (then nothing else prints), so those calls never fail.
     configQueueStub :: Bool,
     -- | The Content Security Policy nonce for a request, used by the
     -- middleware. When this gives 'Nothing', the middleware reads the nonce

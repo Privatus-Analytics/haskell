@@ -103,3 +103,32 @@ spec = do
 
   it "has no queue stub by default" $
     tag on `shouldNotSatisfy` T.isInfixOf "q:[]"
+
+  describe "when the tag is off" $ do
+    let stubOnly nonce = "<script nonce=\"" <> nonce <> "\">" <> queueStub <> "</script>"
+        props = defaultTagOptions {tagNonce = Just "abc", tagProps = [("plan", "pro")]}
+
+    it "prints exactly the queue stub, with the nonce, when the stub is on" $
+      analyticsTag on {configEnabled = Just False, configQueueStub = True, configProps = [("role", "admin")]} props
+        `shouldBe` stubOnly "abc"
+
+    it "prints the stub without a nonce when there is none" $
+      analyticsTag on {configEnabled = Just False, configQueueStub = True} defaultTagOptions
+        `shouldBe` "<script>" <> queueStub <> "</script>"
+
+    it "prints nothing when the stub is off" $
+      analyticsTag on {configEnabled = Just False} props `shouldBe` ""
+
+    it "prints only the stub without a site id" $
+      analyticsTag on {configSiteId = Nothing, configQueueStub = True} props `shouldBe` stubOnly "abc"
+
+    it "prints only the stub outside the enabled environments" $
+      analyticsTag on {configEnabled = Nothing, configEnvironment = Just "development", configQueueStub = True} props
+        `shouldBe` stubOnly "abc"
+
+    it "prints only the stub from analyticsTagFor and does not run request props" $ do
+      called <- newIORef False
+      let config = on {configEnabled = Just False, configQueueStub = True, configRequestProps = Just (\_ -> writeIORef called True >> pure [])}
+      html <- analyticsTagFor config props defaultRequest
+      html `shouldBe` stubOnly "abc"
+      readIORef called `shouldReturn` False

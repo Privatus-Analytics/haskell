@@ -6,3 +6,4 @@ cabal.project.local*
 *.o
 .DS_Store
 SUBMISSION.md
+example/dist-newstyle/

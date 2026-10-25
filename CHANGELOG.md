@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Changed: with `configQueueStub` on, a tag that is off (outside production, `configEnabled = Just False` or
+  no site id) now prints the queue stub and nothing else, so `privatus.track(...)` calls in your own
+  JavaScript never fail. Before, it printed nothing. With the stub off it still prints nothing. Request
+  props still do not run when the tag is off.
+- Added `example/`, a small WAI, Warp and Lucid app for the conformance tests.
+- README: a privacy policy paragraph you can paste.
+
 ## 1.0.0 - 2026-10-25
 
 - Initial release.

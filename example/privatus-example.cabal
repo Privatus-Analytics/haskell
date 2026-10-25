@@ -1,0 +1,20 @@
+cabal-version:      3.0
+name:               privatus-example
+version:            1.0.0
+synopsis:           Conformance example app for privatus-analytics
+license:            MIT
+build-type:         Simple
+
+executable privatus-example
+  main-is:          Main.hs
+  default-language: GHC2021
+  ghc-options:      -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+    , base
+    , bytestring
+    , http-types
+    , lucid
+    , privatus-analytics
+    , text
+    , wai
+    , warp                >=3.3 && <3.5

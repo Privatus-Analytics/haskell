@@ -68,7 +68,8 @@ queueStub =
 shouldRender :: Config -> Bool
 shouldRender config = isJust (siteId config) && isEnabled config
 
--- | The tag as text, or @""@ when no tag should print. Uses 'configProps'
+-- | The tag as text. When the tag is off (no site id, or not enabled) it is
+-- only the queue stub when 'configQueueStub' is on, and @""@ otherwise. Uses 'configProps'
 -- and 'tagProps', but not 'configRequestProps' (see 'analyticsTagFor').
 --
 -- >>> analyticsTag defaultConfig { configSiteId = Just "pa_X", configEnabled = Just True } defaultTagOptions
@@ -82,27 +83,36 @@ analyticsTagBS config options = TE.encodeUtf8 (analyticsTag config options)
 
 -- | Like 'analyticsTag', and also runs 'configRequestProps' for this
 -- request. The props are merged in this order: 'configProps', then the
--- request props, then 'tagProps'. The request props do not run when no tag
--- prints.
+-- request props, then 'tagProps'. The request props do not run when the tag
+-- is off.
 analyticsTagFor :: Config -> TagOptions -> Wai.Request -> IO Text
 analyticsTagFor config options request
-  | not (shouldRender config) = pure ""
+  | not (shouldRender config) = pure (offTag config options)
   | otherwise = do
       fromRequest <- maybe (pure []) ($ request) (configRequestProps config)
       pure (render config options (mergeProps (configProps config) fromRequest))
 
 render :: Config -> TagOptions -> [Prop] -> Text
 render config options baseProps
-  | not (shouldRender config) = ""
+  | not (shouldRender config) = offTag config options
   | otherwise = T.intercalate "\n" (stub <> propsScript <> [scriptTag attrs])
   where
     json = pagePropsJson (mergeProps baseProps (tagProps options))
-    stub = [inline queueStub | configQueueStub config]
-    propsScript = maybe [] (\j -> [inline ("window." <> propsFunction <> "=function(){return " <> j <> "}")]) json
+    stub = [inlineScript options queueStub | configQueueStub config]
+    propsScript = maybe [] (\j -> [inlineScript options ("window." <> propsFunction <> "=function(){return " <> j <> "}")]) json
     attrs = tagAttributes config options `with` maybe [] (const [("data-props", Just propsFunction)]) json
-    inline code = case tagNonce options of
-      Just nonce -> "<script nonce=\"" <> escapeHtml nonce <> "\">" <> code <> "</script>"
-      Nothing -> "<script>" <> code <> "</script>"
+
+-- When the tag is off, only the queue stub prints (when it is on), so
+-- privatus.track calls in the app's own JavaScript never fail.
+offTag :: Config -> TagOptions -> Text
+offTag config options
+  | configQueueStub config = inlineScript options queueStub
+  | otherwise = ""
+
+inlineScript :: TagOptions -> Text -> Text
+inlineScript options code = case tagNonce options of
+  Just nonce -> "<script nonce=\"" <> escapeHtml nonce <> "\">" <> code <> "</script>"
+  Nothing -> "<script>" <> code <> "</script>"
 
 -- | The attributes of the tracker tag, in order. 'Nothing' is a bare
 -- attribute like @defer@.

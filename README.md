@@ -92,7 +92,8 @@ With anything else, `analyticsTag config defaultTagOptions` gives `Text` and
 ```
 
 The tag prints nothing when there is no site id, and nothing outside
-production (see below). If your app uses a Content Security Policy nonce, pass
+production (see below). The one exception is the queue stub: when it is on,
+it still prints (see [Track from your own JavaScript](#track-from-your-own-javascript)). If your app uses a Content Security Policy nonce, pass
 it in: `defaultTagOptions {tagNonce = Just nonce}`. A Content Security Policy
 is a header that tells the browser which scripts may run, and a nonce is the
 one-time code that lets an inline script through.
@@ -161,7 +162,7 @@ let privatus =
 | `configExtraAttributes` | `[]` | Any other `data-*` attribute |
 | `configProps` | `[]` | Page props sent with every pageview and event. See below |
 | `configRequestProps` | `Nothing` | A function that gets the WAI request and gives more page props. See below |
-| `configQueueStub` | `False` | Prints a small script first, so `privatus.track` calls made before the tracker loads are kept and sent later |
+| `configQueueStub` | `False` | Prints a small script first, so `privatus.track` calls made before the tracker loads are kept and sent later. It still prints when the tag is off, so those calls never fail |
 | `configNonceFor` | `const Nothing` | Gives the middleware the nonce for a request |
 
 To add the tag, you call a helper or use `privatusMiddleware`. There is no
@@ -345,8 +346,11 @@ sends them once the tracker is ready:
 config {configQueueStub = True}
 ```
 
-Like the tag, the stub prints only where the tag is on, so in development use
-`window.privatus && privatus.track(...)`. The stub itself is `queueStub`.
+The stub prints even where the tag is off (in development, with
+`configEnabled = Just False`, or with no site id). Then only the stub prints:
+no tracker and no page props. So you can always call `privatus.track(...)`. In
+development the calls just wait in the queue and are never sent. The stub
+itself is `queueStub`.
 
 ### See the results
 
@@ -435,6 +439,15 @@ agents. Keep people out of your props and event props: no names, emails or
 user ids. See the [privacy
 documentation](https://privatusanalytics.com/docs/privacy) for what is
 collected.
+
+If you have a privacy policy, it should say which tools handle your visitors' data. You can paste this:
+
+> This website uses [Privatus Analytics](https://privatusanalytics.com/privacy-analytics) to count visits. It
+> does not use cookies and does not follow you from one website to another. Your IP address is used for a moment
+> to count visits and is never stored.
+
+Change it to fit your site. The [privacy policy generator](https://privatusanalytics.com/tools/privacy-policy-generator)
+makes a longer version with your site's name in it.
 
 ## Development
 

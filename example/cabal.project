@@ -1,0 +1,3 @@
+-- The example and the package from this repo's own source, not from Hackage.
+packages: . ..
+tests: False

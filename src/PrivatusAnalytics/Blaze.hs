@@ -30,8 +30,9 @@ import PrivatusAnalytics.Tag (TagOptions, analyticsTag)
 import Text.Blaze (Attribute, customAttribute, preEscapedToMarkup, textTag, toValue)
 import Text.Blaze.Html (Html)
 
--- | The script tag. Prints nothing without a site id, or outside the enabled
--- environments.
+-- | The script tag. Without a site id, or outside the enabled environments,
+-- it prints only the queue stub (when 'PrivatusAnalytics.Config.configQueueStub'
+-- is on) or nothing.
 analyticsTagHtml :: Config -> TagOptions -> Html
 analyticsTagHtml config options = preEscapedToMarkup (analyticsTag config options)
 
