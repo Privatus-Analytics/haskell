@@ -1,14 +1,30 @@
 # Privatus Analytics for Haskell
 
-Adds the cookieless [Privatus Analytics](https://privatusanalytics.com)
-tracking script to your Haskell web app. Print the tag yourself with a helper
-for lucid or blaze-html, or let a WAI middleware put it in the `<head>` for
-you. WAI is the web interface that Yesod, Servant, Scotty and most other
-Haskell web servers share.
+**Real visitor numbers for your Haskell web app. No cookies, no cookie pop-up, no bots.**
 
-Privatus Analytics counts visits, sources, pages and conversions without
-cookies, local storage or fingerprinting, so analytics does not need a consent
-banner by itself. Check with your own counsel for your country.
+You want to know if people use your Haskell web app. But Google Analytics uses
+cookies, so in many countries you must show a cookie pop-up first (the box that
+asks visitors to say yes to cookies). Many people click no, so they never show
+up in your numbers. Bots add fake visits on top.
+
+This package adds the Privatus Analytics script to your Haskell web app. Print
+the tag with a helper for lucid or blaze-html, or let a WAI middleware put it in
+the page head for you. WAI is the shared base that Yesod, Servant, Scotty and
+most other Haskell web servers use. The script sets no cookies and keeps no IP
+addresses. Bots are filtered out before they are counted.
+
+So you see how many real people came, which pages they looked at and where they
+came from, on one simple dashboard. A report comes to your inbox each week, and
+you can set alerts for when traffic jumps or drops. And you don't need a cookie
+pop-up for your analytics.
+
+**Free plan, no card:** 10,000 events a month (an event is a page view or an action you track) on up to 3 sites. [Start free at privatusanalytics.com](https://privatusanalytics.com).
+
+- **No cookies.** No cookies and no hidden IDs on your visitors' devices, and no IP
+  addresses are kept. Laws differ by country, so check your own legal advice.
+- **Real people, not bots.** Known bots, data centers and spam visits are left
+  out on every plan.
+- **Small and fast.** The script is about 3 KB when compressed.
 
 The package only prints the browser script. It never sends events from your
 server and sets no cookies. You need a Privatus Analytics account to see
@@ -117,7 +133,7 @@ main = do
 It adds the tag just before `</head>` in uncompressed `text/html` responses with
 status 200, and fixes the `Content-Length` header. It skips Ajax requests,
 pages without a `<head>`, and pages that already have the tag. Responses that
-carry a `Content-Encoding` header are left alone, so if you compress with
+have a `Content-Encoding` header are left alone, so if you compress with
 `Network.Wai.Middleware.Gzip`, put `privatusMiddleware` inside it:
 `gzip def (privatusMiddleware config app)`. For the nonce, the middleware uses
 `configNonceFor` if you set it, or else reads the `'nonce-...'` value from the
